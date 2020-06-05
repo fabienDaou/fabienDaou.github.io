@@ -28,6 +28,11 @@
         }
         const codeValue = getQueryVariable("code");
         if (codeValue) {
+            const state = getQueryVariable("state");
+            if (localStorage.getItem('oauth_state') !== state) {
+                alert('YOU LOSE');
+                return;
+            }
             const myHeaders = new Headers();
             myHeaders.append("x-cors-lol", "coucou");
             fetch("https://nktpluginscommit.azurewebsites.net/api/githuboauth?code=" + codeValue, {
@@ -35,9 +40,9 @@
                 mode: "cors",
                 headers: myHeaders
             })
-                .then(response => response.json())
-                .then(json => localStorage.setItem("github_token", json["access_token"]))
-                .catch(() => console.log("erro when fetching token"));
+            .then(response => response.json())
+            .then(json => localStorage.setItem("github_token", json["access_token"]))
+            .catch(() => console.log("erro when fetching token"));
         } else {
             const state = genRandomStr();
             localStorage.setItem('oauth_state', state);
