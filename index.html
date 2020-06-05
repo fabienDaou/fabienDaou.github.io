@@ -5,7 +5,7 @@
 </head>
 
 <body>
-    <button value="login github" id="login"></button>
+    <button id="login">login github</button>
     <script>
         function getQueryVariable(variable) {
             var query = window.location.search.substring(1);
@@ -43,7 +43,7 @@
                 window.location.href = (
                     "https://github.com/login/oauth/authorize?client_id="
                     + clientId
-                    + "&scope=repo&redirect_uri=https%3A%2F%2FfabienDaou.github.io&login=fabienDaou&state="
+                    + "&scope=repo&redirect_uri=https%3A%2F%2Ffabiendaou.github.io%2Findex.html&login=fabienDaou&state="
                     + state,
                     '_blank',
                     'noreferrer'
