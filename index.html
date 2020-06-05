@@ -26,36 +26,39 @@
         const genRandomStr = () => {
             return toHexString(window.crypto.getRandomValues(new Uint32Array(10)));
         }
-        const codeValue = getQueryVariable("code");
-        if (codeValue) {
-            const state = getQueryVariable("state");
-            if (localStorage.getItem('oauth_state') !== state) {
-                alert('YOU LOSE');
-                return;
+
+        (()=>{
+            const codeValue = getQueryVariable("code");
+            if (codeValue) {
+                const state = getQueryVariable("state");
+                if (localStorage.getItem('oauth_state') !== state) {
+                    alert('YOU LOSE');
+                    return;
+                }
+                const myHeaders = new Headers();
+                myHeaders.append("x-cors-lol", "coucou");
+                fetch("https://nktpluginscommit.azurewebsites.net/api/githuboauth?code=" + codeValue, {
+                    method: "GET",
+                    mode: "cors",
+                    headers: myHeaders
+                })
+                .then(response => response.json())
+                .then(json => localStorage.setItem("github_token", json["access_token"]))
+                .catch(() => console.log("erro when fetching token"));
+            } else {
+                const state = genRandomStr();
+                localStorage.setItem('oauth_state', state);
+                document.getElementById('login').addEventListener('click', () => {
+                    const clientId = "766e6d2f7f359b73cef3";
+                    window.location.href = (
+                        "https://github.com/login/oauth/authorize?client_id="
+                        + clientId
+                        + "&scope=repo&redirect_uri=https%3A%2F%2Ffabiendaou.github.io%2Findex.html&login=fabienDaou&state="
+                        + state
+                    );
+                });
             }
-            const myHeaders = new Headers();
-            myHeaders.append("x-cors-lol", "coucou");
-            fetch("https://nktpluginscommit.azurewebsites.net/api/githuboauth?code=" + codeValue, {
-                method: "GET",
-                mode: "cors",
-                headers: myHeaders
-            })
-            .then(response => response.json())
-            .then(json => localStorage.setItem("github_token", json["access_token"]))
-            .catch(() => console.log("erro when fetching token"));
-        } else {
-            const state = genRandomStr();
-            localStorage.setItem('oauth_state', state);
-            document.getElementById('login').addEventListener('click', () => {
-                const clientId = "766e6d2f7f359b73cef3";
-                window.location.href = (
-                    "https://github.com/login/oauth/authorize?client_id="
-                    + clientId
-                    + "&scope=repo&redirect_uri=https%3A%2F%2Ffabiendaou.github.io%2Findex.html&login=fabienDaou&state="
-                    + state
-                );
-            });
-        }
+        })();
     </script>
 </body>
 
