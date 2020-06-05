@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+    <button value="login github" id="login"></button>
+    <script>
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+            //console.log('Query variable %s not found', variable);
+        }
+        const toHexString = (byteArray) => {
+            return Array.prototype.map.call(byteArray, (byte) => {
+                return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+            }).join('');
+        }
+        const genRandomStr = () => {
+            return toHexString(window.crypto.getRandomValues(new Uint32Array(10)));
+        }
+        const codeValue = getQueryVariable("code");
+        if (codeValue) {
+            const myHeaders = new Headers();
+            myHeaders.append("x-cors-lol", "coucou");
+            fetch("https://nktpluginscommit.azurewebsites.net/api/githuboauth?code=" + codeValue, {
+                method: "GET",
+                mode: "cors",
+                headers: myHeaders
+            }).then((response) => console.log(JSON.stringify(response))).catch(() => console.log("erro when fetching token"));
+        } else {
+            const state = genRandomStr();
+            localStorage.set('oauth_state', state);
+            document.getElementById('login').addEventListener('click', () => {
+                const clientId = "766e6d2f7f359b73cef3";
+                window.location.href = (
+                    "https://github.com/login/oauth/authorize?client_id="
+                    + clientId
+                    + "&scope=repo&redirect_uri=https%3A%2F%2FfabienDaou.github.io&login=fabienDaou&state="
+                    + state,
+                    '_blank',
+                    'noreferrer'
+                );
+            });
+        }
+    </script>
+</body>
+
+</html>
