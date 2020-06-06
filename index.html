@@ -71,7 +71,7 @@
             headers.append("authorization", `token ${accessToken}`);
             headers.append("content-type", "application/json");
 
-            const jsonResponse = await fetch(`https://api.github.com/graphql`,
+            const response = await fetch(`https://api.github.com/graphql`,
                 {
                     method: "POST",
                     body: JSON.stringify(
@@ -79,9 +79,10 @@
                             query: "query GetPlugins { search(first: 3, query: \"Nkt-plugins\", type: REPOSITORY) { edges { node { ... on Repository { name isPrivate object(expression: \"master:plugins\") { ... on Tree { entries { name object { ... on Tree { entries { name } } ... on Blob { text } } } } } } } } } }"
                         }),
                     headers: headers
-                }).json();
+                });
+            const json = await response.json();
 
-            return jsonResponse.data.search.edges.filter(({ node }) => node.object !== null).map(({ node }) => {
+            return json.data.search.edges.filter(({ node }) => node.object !== null).map(({ node }) => {
                 return {
                     name: node.name,
                     isPrivate: node.isPrivate,
