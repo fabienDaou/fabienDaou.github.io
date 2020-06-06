@@ -114,12 +114,14 @@
             }
 
             const accessToken = localStorage.getItem("github_token");
-            const baseUri = "https://nktpluginscommit.azurewebsites.net/api"
+            const baseUri = "https://nktpluginscommit.azurewebsites.net/api";
+
+            const { name, isPrivate } = data;
+            const uri = `${baseUri}/delete?name=${encodeURIComponent(name)}&isPrivate=${encodeURIComponent(isPrivate)}&accessToken=${encodeURIComponent(accessToken)}`;
+
             switch (action) {
-                case "commit":
-                    // expecting data looking like { name: "pluginName", isPrivate: true, code: "" }
-                    const { name, isPrivate, code } = data;
-                    const uri = `${baseUri}/commit?name=${encodeURIComponent(name)}&isPrivate=${encodeURIComponent(isPrivate)}&accessToken=${encodeURIComponent(accessToken)}`;
+                case "commit": // expecting data looking like { name: "pluginName", isPrivate: true, code: "" }
+                    const { code } = data;
 
                     const headers = new Headers();
                     headers.append("content-type", "application/javascript");
@@ -128,11 +130,7 @@
                         .then(response => console.log(response.status))
                         .catch(reason => console.log(reason));
                     break;
-                case "delete":
-                    // expecting data looking like { name: "pluginName", isPrivate: true }
-                    const { name, isPrivate } = data;
-
-                    const uri = `${baseUri}/delete?name=${encodeURIComponent(name)}&isPrivate=${encodeURIComponent(isPrivate)}&accessToken=${encodeURIComponent(accessToken)}`;
+                case "delete": // expecting data looking like { name: "pluginName", isPrivate: true }
 
                     fetch(uri, { method: "DELETE" })
                         .then(response => console.log(response.status))
