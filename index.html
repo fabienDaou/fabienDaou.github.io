@@ -72,7 +72,7 @@
 
             const publicResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins/contents/plugins", { method: "GET" });
             const publicJson = await publicResponse.json();
-            const plugins = publicJson.map(plugin => toNameAndUrl(plugin, false));
+            let plugins = publicJson.map(plugin => toNameAndUrl(plugin, false));
 
             const fetchPluginTextHeaders = new Headers();
             fetchPluginTextHeaders.append("Accept", "application/vnd.github.VERSION.raw");
@@ -86,7 +86,7 @@
 
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
                 const privateJson = await privateResponse.json();
-                plugins.concat(privateJson.map(plugin => toNameAndUrl(plugin, true)));
+                plugins = plugins.concat(privateJson.map(plugin => toNameAndUrl(plugin, true)));
             }
 
             return await Promise.all(plugins.map(plugin => {
