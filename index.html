@@ -92,7 +92,7 @@
 
         };
         const plugins = await loadPlugins();
-        parent.postMessage({ event: "pluginsLoaded", data: plugins }, "https://nkt.herokuapp.com");
+        parent.postMessage(JSON.stringify({ event: "pluginsLoaded", data: plugins }), "https://nkt.herokuapp.com");
     </script>
 </body>
 
