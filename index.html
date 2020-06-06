@@ -75,7 +75,7 @@
             let plugins = publicJson.map(plugin => toNameAndUrl(plugin, false));
 
             const fetchPluginTextHeaders = new Headers();
-            fetchPluginTextHeaders.append("Accept", "application/vnd.github.VERSION.raw");
+            fetchPluginTextHeaders.append("Accept", "application/vnd.github.v3.raw");
             const accessToken = localStorage.getItem("github_token");
             if (accessToken) {
                 fetchPluginTextHeaders.append("authorization", `token ${accessToken}`);
