@@ -102,6 +102,8 @@
 
             return await Promise.all(plugins.map(plugin => {
                 const { name, isPrivate, url } = plugin;
+                // WARNING : RATE LIMIT FOR UNAUTHENTICATED REQUESTS IS 60/HR/IP WHICH IS TOO LOW TO REQUEST PLUGINS 1 BY 1
+                // TODO : GRAPHQL TO RETRIEVE ALL PUBLIC PLUGINS AT ONCE
                 const jsonPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.json());
                 return new Promise((resolve, reject) => {
                     jsonPromise.then(json => resolve({ name, isPrivate, text: atob(json.content) })).catch(reason => reject(reason));
@@ -112,6 +114,8 @@
         const allowedParentOrigin = "https://nkt.herokuapp.com";
 
         (async () => {
+            const codeValue = getQueryVariable("code");
+            const fromChild = getQueryVariable("fromChild");
             if (codeValue || fromChild) return;
             const plugins = await loadPlugins();
             parent.postMessage(JSON.stringify({ event: "pluginsLoaded", data: plugins }), allowedParentOrigin);
