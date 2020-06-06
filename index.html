@@ -75,7 +75,7 @@
             let plugins = publicJson.map(plugin => toNameAndUrl(plugin, false));
 
             const fetchPluginTextHeaders = new Headers();
-            fetchPluginTextHeaders.append("Accept", "application/vnd.github.v3.raw");
+            //fetchPluginTextHeaders.append("Accept", "application/vnd.github.v3.raw");
             const accessToken = localStorage.getItem("github_token");
             if (accessToken) {
                 fetchPluginTextHeaders.append("authorization", `token ${accessToken}`);
@@ -93,7 +93,7 @@
                 const { name, isPrivate, url } = plugin;
                 const jsonPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.json());
                 return new Promise((resolve, reject) => {
-                    jsonPromise.then(text => resolve({ name, isPrivate, text })).catch(reason => reject(reason));
+                    jsonPromise.then(json => resolve({ name, isPrivate, text: atob(json.content) })).catch(reason => reject(reason));
                 });
             }));
         };
