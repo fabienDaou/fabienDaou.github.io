@@ -108,7 +108,7 @@
                 // TODO : GRAPHQL TO RETRIEVE ALL PUBLIC PLUGINS AT ONCE
                 const textPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.text());
                 return new Promise((resolve, reject) => {
-                    textPromise.then(json => resolve({ name, sha, isPrivate, text: json.content })).catch(reason => reject(reason));
+                    textPromise.then(text => resolve({ name, sha, isPrivate, text })).catch(reason => reject(reason));
                 });
             }));
         };
