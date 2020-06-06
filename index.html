@@ -5,7 +5,7 @@
 </head>
 
 <body>
-    <button id="login">login github</button>
+    <button id="login">github login</button>
     <script>
         function getQueryVariable(variable) {
             var query = window.location.search.substring(1);
@@ -47,9 +47,12 @@
                     mode: "cors",
                     headers: myHeaders
                 })
-                    .then(response => response.json())
-                    .then(json => localStorage.setItem("github_token", json["access_token"]))
-                    .catch(() => console.log("erro when fetching token"));
+                .then(response => response.json())
+                .then(json => {
+                    localStorage.setItem("github_token", json["access_token"]);
+                    window.location.href = '/index.html';
+                })
+                .catch(() => console.log("erro when fetching token"));
             } else if (!token) {
                 const state = genRandomStr();
                 localStorage.setItem('oauth_state', state);
