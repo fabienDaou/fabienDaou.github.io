@@ -27,7 +27,7 @@
             return toHexString(window.crypto.getRandomValues(new Uint32Array(10)));
         }
 
-        (()=>{
+        (() => {
             const codeValue = getQueryVariable("code");
             const fromChild = getQueryVariable("fromChild");
             if (codeValue && !fromChild) {
@@ -46,9 +46,9 @@
                     mode: "cors",
                     headers: myHeaders
                 })
-                .then(response => response.json())
-                .then(json => localStorage.setItem("github_token", json["access_token"]))
-                .catch(() => console.log("erro when fetching token"));
+                    .then(response => response.json())
+                    .then(json => localStorage.setItem("github_token", json["access_token"]))
+                    .catch(() => console.log("erro when fetching token"));
             } else {
                 const state = genRandomStr();
                 localStorage.setItem('oauth_state', state);
@@ -64,6 +64,32 @@
                 });
             }
         })();
+
+        const loadPlugins = async () => {
+            const accessToken = localStorage.getItem("github_token");
+            const headers = new Headers();
+            headers.append("authorization", `token ${accessToken}`);
+
+            const jsonResponse = await fetch(`https://api.github.com/graphql`,
+                {
+                    method: "POST",
+                    body: "query GetPlugins { search(first: 3, query: \"Nkt-plugins\", type: REPOSITORY) { edges { node { ... on Repository { name isPrivate object(expression: \"master:plugins\") { ... on Tree { entries { name object { ... on Tree { entries { name } } ... on Blob { text } } } } } } } } } }",
+                    headers: headers
+                }).json();
+
+            return jsonResponse.data.search.edges.filter(({ node }) => node.object !== null).map(({ node }) => {
+                return {
+                    name: node.name,
+                    isPrivate: node.isPrivate,
+                    plugins: node.object.entries.map(({ name, object }) => {
+                        return { name, text: object.text };
+                    })
+                };
+            });
+
+        };
+        const plugins = await loadPlugins();
+        parent.postMessage({ event: "pluginsLoaded", data: plugins }, "https://nkt.herokuapp.com");
     </script>
 </body>
 
