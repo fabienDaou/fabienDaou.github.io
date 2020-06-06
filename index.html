@@ -95,15 +95,10 @@
                 return { name: entry.name, sha: entry.sha, url: entry.url, isPrivate: private };
             };
 
-            const publicResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins/contents/plugins", { method: "GET" });
-            const publicJson = await publicResponse.json();
-            let plugins = publicJson.map(plugin => toPluginInfo(plugin, false));
-
-            const fetchPluginTextHeaders = new Headers();
-            fetchPluginTextHeaders.append("Accept", "application/vnd.github.v4.raw");
-
             if (getAccessToken()) {
-                appendAuthorizationHeader(fetchPluginTextHeaders);
+                const publicResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins/contents/plugins", { method: "GET" });
+                const publicJson = await publicResponse.json();
+                let plugins = publicJson.map(plugin => toPluginInfo(plugin, false));
 
                 const headers = new Headers();
                 appendAuthorizationHeader(headers);
@@ -112,17 +107,28 @@
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
                 const privateJson = await privateResponse.json();
                 plugins = plugins.concat(privateJson.map(plugin => toPluginInfo(plugin, true)));
-            }
 
-            return await Promise.all(plugins.map(plugin => {
-                const { name, sha, isPrivate, url } = plugin;
-                // WARNING : RATE LIMIT FOR UNAUTHENTICATED REQUESTS IS 60/HR/IP WHICH IS TOO LOW TO REQUEST PLUGINS 1 BY 1
-                // TODO : GRAPHQL TO RETRIEVE ALL PUBLIC PLUGINS AT ONCE
-                const textPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.text());
-                return new Promise((resolve, reject) => {
-                    textPromise.then(text => resolve({ name, sha, isPrivate, text })).catch(reason => reject(reason));
-                });
-            }));
+                const fetchPluginTextHeaders = new Headers();
+                appendAuthorizationHeader(fetchPluginTextHeaders);
+                fetchPluginTextHeaders.append("Accept", "application/vnd.github.v4.raw");
+                return await Promise.all(plugins.map(plugin => {
+                    const { name, sha, isPrivate, url } = plugin;
+                    const textPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.text());
+                    return new Promise((resolve, reject) => {
+                        textPromise.then(text => resolve({ name, sha, isPrivate, text })).catch(reason => reject(reason));
+                    });
+                }));
+            } else {
+                // Because of rate limit for unauthenticated request, we need to use a proxy azure function that will use a personal access token.
+                const response = await fetch("https://nktpluginscommit.azurewebsites.net/api/getAll");
+                const json = await response.json();
+                let publicPlugins = [];
+                for (let repositoryIndex = 0; repositoryIndex < json.length; repositoryIndex++) {
+                    const { isPrivate, plugins } = json[repositoryIndex];
+                    publicPlugins = publicPlugins.concat(plugins.map(({ name, sha, text }) => { return { name, sha, isPrivate, text }; }));
+                }
+                return publicPlugins;
+            }
         };
 
         (async () => {
