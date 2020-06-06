@@ -112,7 +112,7 @@
         const allowedParentOrigin = "https://nkt.herokuapp.com";
 
         (async () => {
-
+            if (codeValue || fromChild) return;
             const plugins = await loadPlugins();
             parent.postMessage(JSON.stringify({ event: "pluginsLoaded", data: plugins }), allowedParentOrigin);
         })();
