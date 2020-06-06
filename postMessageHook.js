@@ -23,7 +23,7 @@ window.addEventListener("message", event => {
 
     switch (action) {
         case "create": // expecting data looking like { name: "pluginName", isPrivate: true, text: "" }
-            const body = {
+            const createBody = {
                 message: `Plugin ${name} created.`,
                 branch: "master",
                 content: btoa(data.text),
@@ -37,7 +37,7 @@ window.addEventListener("message", event => {
                 {
                     method: "PUT",
                     headers: headers,
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(createBody)
                 })
                 .then(response => {
                     console.log("Successfully created.");
@@ -46,7 +46,7 @@ window.addEventListener("message", event => {
                 .catch(reason => console.log(reason));
             break;
         case "delete": // expecting data looking like { name: "pluginName", sha: "", isPrivate: true }
-            const body = {
+            const deleteBody = {
                 message: `Plugin ${name} deleted.`,
                 branch: "master",
                 sha: data.sha,
@@ -59,7 +59,7 @@ window.addEventListener("message", event => {
                 {
                     method: "DELETE",
                     headers: headers,
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(deleteBody)
                 })
                 .then(response => console.log("Successfully deleted."))
                 .catch(reason => console.log(reason));
