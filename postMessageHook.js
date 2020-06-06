@@ -39,10 +39,29 @@ window.addEventListener("message", event => {
                     headers: headers,
                     body: JSON.stringify(createBody)
                 })
-                .then(response => {
-                    console.log("Successfully created.");
-                    response.json().then(json => postEvent("pluginCreationSuccessful", { sha: json.content.sha }));
+                .then(response => response.json().then(json => postEvent("pluginCreationSuccessful", { sha: json.content.sha })))
+                .catch(reason => postEvent("pluginCreationFailed", { reason }));
+            break;
+        case "update": // expecting data looking like { name: "pluginName", isPrivate: true, text: "", sha: "" }
+            const { text, sha } = data;
+            const updateBody = {
+                message: `Plugin ${name} updated.`,
+                branch: "master",
+                content: btoa(text),
+                sha,
+                committer: {
+                    name: "fabienDaou",
+                    email: "fabien.daoulas@gmail.com"
+                }
+            };
+
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${name}.js`,
+                {
+                    method: "PUT",
+                    headers: headers,
+                    body: JSON.stringify(updateBody)
                 })
+                .then(response => response.json().then(json => postEvent("pluginCreationSuccessful", { sha: json.content.sha })))
                 .catch(reason => postEvent("pluginCreationFailed", { reason }));
             break;
         case "delete": // expecting data looking like { name: "pluginName", sha: "", isPrivate: true }
