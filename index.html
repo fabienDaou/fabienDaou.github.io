@@ -29,10 +29,19 @@
             return toHexString(window.crypto.getRandomValues(new Uint32Array(10)));
         };
 
+        const getAccessToken = () => {
+            return localStorage.getItem("github_token");
+        };
+
+        const appendAuthorizationHeader = headers => {
+            const accessToken = getAccessToken();
+            headers.append("authorization", `token ${accessToken}`);
+        };
+
         (() => {
             const codeValue = getQueryVariable("code");
             const fromChild = getQueryVariable("fromChild");
-            const token = localStorage.getItem("github_token");
+            const token = getAccessToken();
             if (codeValue && !fromChild) {
                 window.opener.location.href = window.location.href + '&fromChild=1';
                 window.close();
@@ -89,12 +98,12 @@
 
             const fetchPluginTextHeaders = new Headers();
             fetchPluginTextHeaders.append("Accept", "application/vnd.github.v4.raw");
-            const accessToken = localStorage.getItem("github_token");
-            if (accessToken) {
-                fetchPluginTextHeaders.append("authorization", `token ${accessToken}`);
+
+            if (getAccessToken()) {
+                appendAuthorizationHeader(fetchPluginTextHeaders);
 
                 const headers = new Headers();
-                headers.append("authorization", `token ${accessToken}`);
+                appendAuthorizationHeader(headers);
                 headers.append("content-type", "application/json");
 
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
@@ -135,7 +144,9 @@
                 console.log("Invalid object.");
             }
 
-            const accessToken = localStorage.getItem("github_token");
+            const accessToken = getAccessToken();
+            const headers = new Headers();
+            appendAuthorizationHeader(headers);
             const baseUri = "https://nktpluginscommit.azurewebsites.net/api";
 
             const { name, isPrivate } = data;
