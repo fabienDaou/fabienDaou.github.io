@@ -18,14 +18,16 @@
             }
             //console.log('Query variable %s not found', variable);
         }
+
         const toHexString = (byteArray) => {
             return Array.prototype.map.call(byteArray, (byte) => {
                 return ('0' + (byte & 0xFF).toString(16)).slice(-2);
             }).join('');
-        }
+        };
+
         const genRandomStr = () => {
             return toHexString(window.crypto.getRandomValues(new Uint32Array(10)));
-        }
+        };
 
         (() => {
             const codeValue = getQueryVariable("code");
@@ -47,12 +49,12 @@
                     mode: "cors",
                     headers: myHeaders
                 })
-                .then(response => response.json())
-                .then(json => {
-                    localStorage.setItem("github_token", json["access_token"]);
-                    window.location.href = '/index.html';
-                })
-                .catch(() => console.log("erro when fetching token"));
+                    .then(response => response.json())
+                    .then(json => {
+                        localStorage.setItem("github_token", json["access_token"]);
+                        window.location.href = '/index.html';
+                    })
+                    .catch(() => console.log("erro when fetching token"));
             } else if (!token) {
                 const state = genRandomStr();
                 localStorage.setItem('oauth_state', state);
@@ -77,16 +79,16 @@
         })();
 
         const loadPlugins = async () => {
-            const toNameAndUrl = (entry, private) => {
-                return { name: entry.name, url: entry.url, isPrivate: private };
+            const toPluginInfo = (entry, private) => {
+                return { name: entry.name, sha: entry.sha, url: entry.url, isPrivate: private };
             };
 
             const publicResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins/contents/plugins", { method: "GET" });
             const publicJson = await publicResponse.json();
-            let plugins = publicJson.map(plugin => toNameAndUrl(plugin, false));
+            let plugins = publicJson.map(plugin => toPluginInfo(plugin, false));
 
             const fetchPluginTextHeaders = new Headers();
-            //fetchPluginTextHeaders.append("Accept", "application/vnd.github.v3.raw");
+            fetchPluginTextHeaders.append("Accept", "application/vnd.github.v4.raw");
             const accessToken = localStorage.getItem("github_token");
             if (accessToken) {
                 fetchPluginTextHeaders.append("authorization", `token ${accessToken}`);
@@ -97,16 +99,16 @@
 
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
                 const privateJson = await privateResponse.json();
-                plugins = plugins.concat(privateJson.map(plugin => toNameAndUrl(plugin, true)));
+                plugins = plugins.concat(privateJson.map(plugin => toPluginInfo(plugin, true)));
             }
 
             return await Promise.all(plugins.map(plugin => {
-                const { name, isPrivate, url } = plugin;
+                const { name, sha, isPrivate, url } = plugin;
                 // WARNING : RATE LIMIT FOR UNAUTHENTICATED REQUESTS IS 60/HR/IP WHICH IS TOO LOW TO REQUEST PLUGINS 1 BY 1
                 // TODO : GRAPHQL TO RETRIEVE ALL PUBLIC PLUGINS AT ONCE
                 const jsonPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.json());
                 return new Promise((resolve, reject) => {
-                    jsonPromise.then(json => resolve({ name, isPrivate, text: atob(json.content) })).catch(reason => reject(reason));
+                    jsonPromise.then(json => resolve({ name, sha, isPrivate, text: json.content })).catch(reason => reject(reason));
                 });
             }));
         };
