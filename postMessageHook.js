@@ -41,9 +41,9 @@ window.addEventListener("message", event => {
                 })
                 .then(response => {
                     console.log("Successfully created.");
-                    response.json().then(json => console.log(`File sha: ${json.content.sha}`));
+                    response.json().then(json => postEvent("pluginCreationSuccessful", { sha: json.content.sha }));
                 })
-                .catch(reason => console.log(reason));
+                .catch(reason => postEvent("pluginCreationFailed", { reason }));
             break;
         case "delete": // expecting data looking like { name: "pluginName", sha: "", isPrivate: true }
             const deleteBody = {
@@ -61,8 +61,8 @@ window.addEventListener("message", event => {
                     headers: headers,
                     body: JSON.stringify(deleteBody)
                 })
-                .then(response => console.log("Successfully deleted."))
-                .catch(reason => console.log(reason));
+                .then(response => postEvent("pluginDeletionSuccessful", {}))
+                .catch(reason => postEvent("pluginDeletionFailed", { reason }));
             break;
         default:
             console.log("Invalid action: " + action);

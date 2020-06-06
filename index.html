@@ -38,6 +38,9 @@
             headers.append("authorization", `token ${accessToken}`);
         };
 
+        const allowedParentOrigin = "https://nkt.herokuapp.com";
+        const postEvent = (eventName, data) => parent.postMessage(JSON.stringify({ event: eventName, data: data }), allowedParentOrigin);
+
         (() => {
             const codeValue = getQueryVariable("code");
             const fromChild = getQueryVariable("fromChild");
@@ -122,14 +125,12 @@
             }));
         };
 
-        const allowedParentOrigin = "https://nkt.herokuapp.com";
-
         (async () => {
             const codeValue = getQueryVariable("code");
             const fromChild = getQueryVariable("fromChild");
             if (codeValue || fromChild) return;
             const plugins = await loadPlugins();
-            parent.postMessage(JSON.stringify({ event: "pluginsLoaded", data: plugins }), allowedParentOrigin);
+            postEvent("pluginsLoaded", plugins);
         })();
     </script>
     <script src="postMessageHook.js" type="text/javascript"></script>
