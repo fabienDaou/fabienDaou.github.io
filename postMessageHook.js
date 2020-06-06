@@ -33,7 +33,7 @@ window.addEventListener("message", event => {
                 }
             };
 
-            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${name}.js`,
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeUriComponent(name)}.js`,
                 {
                     method: "PUT",
                     headers: headers,
@@ -55,7 +55,7 @@ window.addEventListener("message", event => {
                 }
             };
 
-            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${name}.js`,
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeUriComponent(name)}.js`,
                 {
                     method: "PUT",
                     headers: headers,
@@ -74,7 +74,7 @@ window.addEventListener("message", event => {
                     email: "fabien.daoulas@gmail.com"
                 }
             };
-            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${name}.js`,
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeUriComponent(name)}.js`,
                 {
                     method: "DELETE",
                     headers: headers,
