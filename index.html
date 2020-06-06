@@ -120,13 +120,13 @@
             const queryString = `?name=${encodeURIComponent(name)}&isPrivate=${encodeURIComponent(isPrivate)}&accessToken=${encodeURIComponent(accessToken)}`;
 
             switch (action) {
-                case "commit": // expecting data looking like { name: "pluginName", isPrivate: true, code: "" }
-                    const { code } = data;
+                case "commit": // expecting data looking like { name: "pluginName", isPrivate: true, text: "" }
+                    const { text } = data;
 
                     const headers = new Headers();
                     headers.append("content-type", "application/javascript");
 
-                    fetch(`${baseUri}/commit${queryString}`, { method: "POST", body: code, headers: headers })
+                    fetch(`${baseUri}/commit${queryString}`, { method: "POST", body: text, headers: headers })
                         .then(response => console.log(response.status))
                         .catch(reason => console.log(reason));
                     break;
