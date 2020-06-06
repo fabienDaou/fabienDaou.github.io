@@ -117,8 +117,8 @@
                     // expecting data looking like { name: "pluginName", isPrivate: true, code: "" }
                     const accessToken = localStorage.getItem("github_token");
                     const { name, isPrivate, code } = data;
-                    const baseUri = "https://nktpluginscommit.azurewebsites.net/api/commit?name=Test&isPrivate=true&accessToken=73be11b48581fc4fc6c72330bf9aade760cafc07"
-                    const uri = baseUri + "?" + "name=" + encodeURI(name) + "&" + "isPrivate=" + isPrivate + "&" + "accessToken=" + accessToken;
+                    const baseUri = "https://nktpluginscommit.azurewebsites.net/api/commit"
+                    const uri = baseUri + "?" + "name=" + encodeURIComponent(name) + "&" + "isPrivate=" + isPrivate + "&" + "accessToken=" + accessToken;
                     const headers = new Headers();
                     headers.append("content-type", "application/javascript");
                     fetch(uri, { method: "POST", body: code, headers: headers })
