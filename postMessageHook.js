@@ -1,3 +1,7 @@
+const getRepositoryName = private => private ? "nkt-plugins-private" : "nkt-plugins";
+const baseGithubApiUri = "https://api.github.com/repos/fabienDaou";
+const githubPluginPath = "contents/plugins";
+
 window.addEventListener("message", event => {
     if (event.origin !== allowedParentOrigin) return;
     let action;
@@ -10,29 +14,54 @@ window.addEventListener("message", event => {
         console.log("Invalid object.");
     }
 
-    const accessToken = getAccessToken();
     const headers = new Headers();
+    headers.append("content-type", "application/json");
     appendAuthorizationHeader(headers);
-    const baseUri = "https://nktpluginscommit.azurewebsites.net/api";
 
     const { name, isPrivate } = data;
-    const queryString = `?name=${encodeURIComponent(name)}&isPrivate=${encodeURIComponent(isPrivate)}&accessToken=${encodeURIComponent(accessToken)}`;
+    const repositoryName = getRepositoryName(isPrivate);
 
     switch (action) {
-        case "commit": // expecting data looking like { name: "pluginName", isPrivate: true, text: "" }
-            const { text } = data;
+        case "create": // expecting data looking like { name: "pluginName", isPrivate: true, text: "" }
+            const body = {
+                message: `Plugin ${name} created.`,
+                branch: "master",
+                content: btoa(data.text),
+                committer: {
+                    name: "fabienDaou",
+                    email: "fabien.daoulas@gmail.com"
+                }
+            };
 
-            const headers = new Headers();
-            headers.append("content-type", "application/javascript");
-
-            fetch(`${baseUri}/commit${queryString}`, { method: "POST", body: text, headers: headers })
-                .then(response => console.log(response.status))
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${name}.js`,
+                {
+                    method: "PUT",
+                    headers: headers,
+                    body: JSON.stringify(body)
+                })
+                .then(response => {
+                    console.log("Successfully created.");
+                    response.json().then(json => console.log(`File sha: ${json.content.sha}`));
+                })
                 .catch(reason => console.log(reason));
             break;
-        case "delete": // expecting data looking like { name: "pluginName", isPrivate: true }
-
-            fetch(`${baseUri}/delete${queryString}`, { method: "DELETE" })
-                .then(response => console.log(response.status))
+        case "delete": // expecting data looking like { name: "pluginName", sha: "", isPrivate: true }
+            const body = {
+                message: `Plugin ${name} deleted.`,
+                branch: "master",
+                sha: data.sha,
+                committer: {
+                    name: "fabienDaou",
+                    email: "fabien.daoulas@gmail.com"
+                }
+            };
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${name}.js`,
+                {
+                    method: "DELETE",
+                    headers: headers,
+                    body: JSON.stringify(body)
+                })
+                .then(response => console.log("Successfully deleted."))
                 .catch(reason => console.log(reason));
             break;
         default:
