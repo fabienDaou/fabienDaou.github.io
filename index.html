@@ -30,6 +30,7 @@
         (() => {
             const codeValue = getQueryVariable("code");
             const fromChild = getQueryVariable("fromChild");
+            const token = localStorage.getItem("github_token");
             if (codeValue && !fromChild) {
                 window.opener.location.href = window.location.href + '&fromChild=1';
                 window.close();
@@ -49,7 +50,7 @@
                     .then(response => response.json())
                     .then(json => localStorage.setItem("github_token", json["access_token"]))
                     .catch(() => console.log("erro when fetching token"));
-            } else {
+            } else if (!token) {
                 const state = genRandomStr();
                 localStorage.setItem('oauth_state', state);
                 document.getElementById('login').addEventListener('click', () => {
@@ -61,6 +62,13 @@
                         + state,
                         '_blank'
                     );
+                });
+            } else {
+                const button = document.getElementById('login');
+                button.textContent = 'github logout';
+                document.getElementById('login').addEventListener('click', () => {
+                    window.localStorage.removeItem('github_token');
+                    window.location.href = '/index.html';
                 });
             }
         })();
