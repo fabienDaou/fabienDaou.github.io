@@ -74,11 +74,15 @@
             const publicJson = await publicResponse.json();
             const plugins = publicJson.map(plugin => toNameAndUrl(plugin, false));
 
+            const fetchPluginTextHeaders = new Headers();
             const accessToken = localStorage.getItem("github_token");
             if (accessToken) {
+                fetchPluginTextHeaders.append("authorization", `token ${accessToken}`);
+
                 const headers = new Headers();
                 headers.append("authorization", `token ${accessToken}`);
                 headers.append("content-type", "application/json");
+
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
                 const privateJson = await privateResponse.json();
                 plugins.concat(privateJson.map(plugin => toNameAndUrl(plugin, true)));
@@ -86,7 +90,7 @@
 
             return await Promise.all(plugins.map(plugin => {
                 const { name, isPrivate, url } = plugin;
-                const jsonPromise = fetch(url).then(response => response.json());
+                const jsonPromise = fetch(url, { headers: fetchPluginTextHeaders }).then(response => response.json());
                 return new Promise((resolve, reject) => {
                     jsonPromise.then(text => resolve({ name, isPrivate, text })).catch(reason => reject(reason));
                 });
