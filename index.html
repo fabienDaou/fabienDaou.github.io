@@ -67,7 +67,7 @@
 
         const loadPlugins = async () => {
             const toNameAndUrl = (entry, private) => {
-                return { name: entry.name, url: entry["download_url"], isPrivate: private };
+                return { name: entry.name, url: entry.url, isPrivate: private };
             };
 
             const publicResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins/contents/plugins", { method: "GET" });
