@@ -103,8 +103,8 @@
 
         window.addEventListener("message", eventAsString => {
             if (event.origin !== allowedParentOrigin) return;
-            const action;
-            const data;
+            let action;
+            let data;
             try {
                 const eventData = JSON.parse(event.data);
                 action = eventData.action;
