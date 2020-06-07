@@ -95,10 +95,12 @@
                 return { name: entry.name, sha: entry.sha, url: entry.url, isPrivate: private };
             };
 
+            const filterGitKeep = name => name !== ".gitkeep";
+
             if (getAccessToken()) {
                 const publicResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins/contents/plugins", { method: "GET" });
                 const publicJson = await publicResponse.json();
-                let plugins = publicJson.map(plugin => toPluginInfo(plugin, false));
+                let plugins = publicJson.filter(({ name }) => filterGitKeep(name)).map(plugin => toPluginInfo(plugin, false));
 
                 const headers = new Headers();
                 appendAuthorizationHeader(headers);
@@ -106,7 +108,7 @@
 
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
                 const privateJson = await privateResponse.json();
-                plugins = plugins.concat(privateJson.map(plugin => toPluginInfo(plugin, true)));
+                plugins = plugins.concat(privateJson.filter(({ name }) => filterGitKeep(name)).map(plugin => toPluginInfo(plugin, true)));
 
                 const fetchPluginTextHeaders = new Headers();
                 appendAuthorizationHeader(fetchPluginTextHeaders);
@@ -125,7 +127,7 @@
                 let publicPlugins = [];
                 for (let repositoryIndex = 0; repositoryIndex < json.length; repositoryIndex++) {
                     const { isPrivate, plugins } = json[repositoryIndex];
-                    publicPlugins = publicPlugins.concat(plugins.map(({ name, sha, text }) => { return { name, sha, isPrivate, text }; }));
+                    publicPlugins = publicPlugins.concat(plugins.filter(({ name }) => filterGitKeep(name)).map(({ name, sha, text }) => { return { name, sha, isPrivate, text }; }));
                 }
                 return publicPlugins;
             }
