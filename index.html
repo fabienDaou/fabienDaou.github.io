@@ -108,8 +108,11 @@
 
                 const privateResponse = await fetch("https://api.github.com/repos/fabienDaou/Nkt-plugins-private/contents/plugins", { method: "GET", headers: headers });
                 const privateJson = await privateResponse.json();
-                plugins = plugins.concat(privateJson.filter(({ name }) => filterGitKeep(name)).map(plugin => toPluginInfo(plugin, true)));
-
+                if (privateJson.filter) {
+                    plugins = plugins.concat(privateJson.filter(({ name }) => filterGitKeep(name)).map(plugin => toPluginInfo(plugin, true)));
+                } else {
+                    console.error('You probably do not have access to private plugins.');
+                }
                 const fetchPluginTextHeaders = new Headers();
                 appendAuthorizationHeader(fetchPluginTextHeaders);
                 fetchPluginTextHeaders.append("Accept", "application/vnd.github.v4.raw");
