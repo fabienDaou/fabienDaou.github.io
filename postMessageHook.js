@@ -39,8 +39,8 @@ window.addEventListener("message", event => {
                     headers: headers,
                     body: JSON.stringify(createBody)
                 })
-                .then(response => response.json().then(json => postEvent("pluginCreationSuccessful", { sha: json.content.sha })))
-                .catch(reason => postEvent("pluginCreationFailed", { reason }));
+                .then(response => response.json().then(json => postEvent("pluginCreationSuccessful", { name, sha: json.content.sha })))
+                .catch(reason => postEvent("pluginCreationFailed", { name, reason }));
             break;
         case "update": // expecting data looking like { name: "pluginName", isPrivate: true, text: "", sha: "" }
             const { text, sha } = data;
@@ -61,8 +61,8 @@ window.addEventListener("message", event => {
                     headers: headers,
                     body: JSON.stringify(updateBody)
                 })
-                .then(response => response.json().then(json => postEvent("pluginUpdateSuccessful", { sha: json.content.sha })))
-                .catch(reason => postEvent("pluginUpdateFailed", { reason }));
+                .then(response => response.json().then(json => postEvent("pluginUpdateSuccessful", { name, sha: json.content.sha })))
+                .catch(reason => postEvent("pluginUpdateFailed", { name, reason }));
             break;
         case "delete": // expecting data looking like { name: "pluginName", sha: "", isPrivate: true }
             const deleteBody = {
@@ -80,8 +80,26 @@ window.addEventListener("message", event => {
                     headers: headers,
                     body: JSON.stringify(deleteBody)
                 })
-                .then(response => postEvent("pluginDeletionSuccessful", {}))
-                .catch(reason => postEvent("pluginDeletionFailed", { reason }));
+                .then(response => postEvent("pluginDeletionSuccessful", { name }))
+                .catch(reason => postEvent("pluginDeletionFailed", { name, reason }));
+            break;
+        case "getText":
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
+                {
+                    method: "GET",
+                    headers: headers
+                })
+                .then(response => response.json().then(json => postEvent("pluginTextSuccessful", { name, text: atob(json.content) })))
+                .catch(reason => postEvent("pluginTextFailed", { name, reason }));
+            break;
+        case "getSha":
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
+                {
+                    method: "GET",
+                    headers: headers
+                })
+                .then(response => response.json().then(json => postEvent("pluginTextSuccessful", { name, sha: json.sha })))
+                .catch(reason => postEvent("pluginTextFailed", { name, reason }));
             break;
         default:
             console.log("Invalid action: " + action);
