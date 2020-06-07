@@ -97,13 +97,13 @@
 
             const filterGitKeep = name => name !== ".gitkeep";
 
-            const loadOneRepository = async (owner, name) => {
+            const loadOneRepository = async (owner, name, isPrivate) => {
                 const headers = new Headers();
                 appendAuthorizationHeader(headers);
                 const response = await fetch(`https://api.github.com/repos/${owner}/${name}/contents/plugins`, { method: "GET", headers: headers });
                 if (response.status === 200) {
                     const json = await response.json();
-                    return json.filter(({ name }) => filterGitKeep(name)).map(plugin => toPluginInfo(plugin, false));
+                    return json.filter(({ name }) => filterGitKeep(name)).map(plugin => toPluginInfo(plugin, isPrivate));
                 } else {
                     console.error(`Could not load plugins from ${owner}/${name} because ${response.statusText}.`);
                     return [];
@@ -111,8 +111,8 @@
             };
 
             if (getAccessToken()) {
-                const publicPlugins = await loadOneRepository("fabienDaou", "Nkt-plugins");
-                const privatePlugins = await loadOneRepository("fabienDaou", "Nkt-plugins-private");
+                const publicPlugins = await loadOneRepository("fabienDaou", "Nkt-plugins", false);
+                const privatePlugins = await loadOneRepository("fabienDaou", "Nkt-plugins-private", true);
                 const allPlugins = publicPlugins.concat(privatePlugins);
 
                 const fetchPluginTextHeaders = new Headers();
