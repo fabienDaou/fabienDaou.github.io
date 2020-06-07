@@ -42,20 +42,22 @@ window.addEventListener("message", event => {
                 .then(response => response.json().then(json => postEvent("pluginCreationSuccessful", { name, sha: json.content.sha })))
                 .catch(reason => postEvent("pluginCreationFailed", { name, reason }));
             break;
-        case "update": // expecting data looking like { name: "pluginName", isPrivate: true, text: "", sha: "" }
-            const { text, sha } = data;
+        case "update": // expecting data looking like { name: "pluginName", isPrivate: true, text: "" }
+            const { text } = data;
             const updateBody = {
                 message: `Plugin ${name} updated.`,
                 branch: "master",
                 content: btoa(text),
-                sha,
                 committer: {
                     name: "fabienDaou",
                     email: "fabien.daoulas@gmail.com"
                 }
             };
-
-            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`)
+            .then(response => response.json())
+            .then(json => {
+                updateBody.sha = json.sha;
+                fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
                 {
                     method: "PUT",
                     headers: headers,
@@ -63,18 +65,23 @@ window.addEventListener("message", event => {
                 })
                 .then(response => response.json().then(json => postEvent("pluginUpdateSuccessful", { name, sha: json.content.sha })))
                 .catch(reason => postEvent("pluginUpdateFailed", { name, reason }));
+            })
+            .catch(reason => postEvent("pluginUpdateFailed", { name, reason }));
             break;
-        case "delete": // expecting data looking like { name: "pluginName", sha: "", isPrivate: true }
+        case "delete": // expecting data looking like { name: "pluginName", isPrivate: true }
             const deleteBody = {
                 message: `Plugin ${name} deleted.`,
                 branch: "master",
-                sha: data.sha,
                 committer: {
                     name: "fabienDaou",
                     email: "fabien.daoulas@gmail.com"
                 }
             };
-            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
+            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`)
+            .then(response => response.json())
+            .then(json => {
+                deleteBody.sha = json.sha;
+                fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
                 {
                     method: "DELETE",
                     headers: headers,
@@ -82,6 +89,8 @@ window.addEventListener("message", event => {
                 })
                 .then(response => postEvent("pluginDeletionSuccessful", { name }))
                 .catch(reason => postEvent("pluginDeletionFailed", { name, reason }));
+            })
+            .catch(reason => postEvent("pluginDeletionFailed", { name, reason }));
             break;
         case "getText":
             fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
@@ -91,15 +100,6 @@ window.addEventListener("message", event => {
                 })
                 .then(response => response.json().then(json => postEvent("pluginTextSuccessful", { name, text: atob(json.content) })))
                 .catch(reason => postEvent("pluginTextFailed", { name, reason }));
-            break;
-        case "getSha":
-            fetch(`${baseGithubApiUri}/${repositoryName}/${githubPluginPath}/${encodeURIComponent(name)}.js`,
-                {
-                    method: "GET",
-                    headers: headers
-                })
-                .then(response => response.json().then(json => postEvent("pluginShaSuccessful", { name, sha: json.sha })))
-                .catch(reason => postEvent("pluginShaFailed", { name, reason }));
             break;
         default:
             console.log("Invalid action: " + action);
