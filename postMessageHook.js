@@ -98,8 +98,8 @@ window.addEventListener("message", event => {
                     method: "GET",
                     headers: headers
                 })
-                .then(response => response.json().then(json => postEvent("pluginTextSuccessful", { name, sha: json.sha })))
-                .catch(reason => postEvent("pluginTextFailed", { name, reason }));
+                .then(response => response.json().then(json => postEvent("pluginShaSuccessful", { name, sha: json.sha })))
+                .catch(reason => postEvent("pluginShaFailed", { name, reason }));
             break;
         default:
             console.log("Invalid action: " + action);
