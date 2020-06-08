@@ -6,6 +6,7 @@
 
 <body>
     <button id="login">github login</button>
+    <button id="reload">&#8635;</button>
     <script>
         function getQueryVariable(variable) {
             var query = window.location.search.substring(1);
@@ -138,12 +139,19 @@
             }
         };
 
+        const addReloadButtonListener = () => {
+            document.getElementById('reload').addEventListener('click', () => {
+                window.location.reload();
+            });
+        }
+
         (async () => {
             const codeValue = getQueryVariable("code");
             const fromChild = getQueryVariable("fromChild");
             if (codeValue || fromChild) return;
             const plugins = await loadPlugins();
             postEvent("pluginsLoaded", plugins);
+            addReloadButtonListener();
         })();
     </script>
     <script src="postMessageHook.js" type="text/javascript"></script>
