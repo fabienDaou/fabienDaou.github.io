@@ -15,7 +15,7 @@ window.addEventListener("message", event => {
     }
 
     const headers = new Headers();
-    headers.append("content-type", "application/json");
+    headers.append("content-type", "application/json; charset=utf-8");
     appendAuthorizationHeader(headers);
 
     const { name, isPrivate } = data;
