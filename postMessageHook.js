@@ -10,7 +10,7 @@ window.addEventListener("message", event => {
         const eventData = JSON.parse(event.data);
         action = eventData.action;
         data = eventData.data;
-    } catch {
+    } catch(e) {
         console.log("Invalid object.");
     }
 
