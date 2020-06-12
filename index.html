@@ -6,7 +6,7 @@
 </head>
 
 <body>
-    <button id="login">github login</button>
+    <input id="login" type= "image" src="icons/GithubMark.png" alt="Login to Github" style="background-color: #ff6347";/>
     <button id="reload">&#8635;</button>
     <script>
         function getQueryVariable(variable) {
@@ -18,7 +18,6 @@
                     return decodeURIComponent(pair[1]);
                 }
             }
-            //console.log('Query variable %s not found', variable);
         }
 
         const toHexString = (byteArray) => {
@@ -68,7 +67,7 @@
                         localStorage.setItem("github_token", json["access_token"]);
                         window.location.href = '/index.html';
                     })
-                    .catch(() => console.log("erro when fetching token"));
+                    .catch(() => console.log("error when fetching token"));
             } else if (!token) {
                 const state = genRandomStr();
                 localStorage.setItem('oauth_state', state);
@@ -84,10 +83,11 @@
                 });
             } else {
                 const button = document.getElementById('login');
-                button.textContent = 'github logout';
-                document.getElementById('login').addEventListener('click', () => {
+                button.style.backgroundColor = "#abe338";
+                document.getElementById('login').addEventListener('click', event => {
                     window.localStorage.removeItem('github_token');
                     window.location.href = '/index.html';
+                    event.currentTarget.style.backgroundColor = "#ff6347";
                 });
             }
         })();
