@@ -126,12 +126,12 @@
             } else {
                 const button = document.getElementById('login');
                 button.style.backgroundColor = "#abe338";
-                button.title = "Login";
+                button.title = "Logout";
                 document.getElementById('login').addEventListener('click', event => {
                     window.localStorage.removeItem('github_token');
                     window.location.href = '/index.html';
                     event.currentTarget.style.backgroundColor = "#ff6347";
-                    event.currentTarget.title = "Logout";
+                    event.currentTarget.title = "Login";
                 });
             }
         })();
