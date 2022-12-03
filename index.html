@@ -81,7 +81,7 @@
             headers.append("authorization", `token ${accessToken}`);
         };
 
-        const allowedParentOrigin = "https://nkt.herokuapp.com";
+        const allowedParentOrigin = "https://nkt.hopto.org";
         const postEvent = (eventName, data) => parent.postMessage(JSON.stringify({ event: eventName, data: data }), allowedParentOrigin);
 
         (() => {
