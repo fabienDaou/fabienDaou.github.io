@@ -196,6 +196,8 @@
             const plugins = await loadPlugins();
             postEvent("pluginsLoaded", plugins, "https://nkt.hopto.org");
             postEvent("pluginsLoaded", plugins, "https://nkt.tandemz.it/");
+            postEvent("pluginsLoaded", plugins, "https://nkt.onrender.com/");
+            postEvent("pluginsLoaded", plugins, "https://nkt.ovh/");
             addReloadButtonListener();
         })();
     </script>
